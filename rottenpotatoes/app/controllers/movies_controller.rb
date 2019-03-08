@@ -1,8 +1,23 @@
 class MoviesController < ApplicationController
-
+  
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :director, :release_date)
   end
+  
+  def if_director_info_exists
+    @movie = Movie.find(params[:id])
+     if @movie.director.nil? or @movie.director.empty?
+       flash[:notice] = "There is no Director information associated to the movie '#{@movie.title}'."
+       redirect_to movies_path
+     end
+  end
+
+
+   def director
+    if_director_info_exists
+    @movies = @movie.list_movies_with_simliar_director
+     #render 'index.html.haml'
+   end
 
   def show
     id = params[:id] # retrieve movie ID from URI route
@@ -20,11 +35,11 @@ class MoviesController < ApplicationController
     end
     @all_ratings = Movie.all_ratings
     @selected_ratings = params[:ratings] || session[:ratings] || {}
-
+    
     if @selected_ratings == {}
       @selected_ratings = Hash[@all_ratings.map {|rating| [rating, rating]}]
     end
-
+    
     if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
       session[:sort] = sort
       session[:ratings] = @selected_ratings
