@@ -1,0 +1,5 @@
+{
+  "name": "without-db",
+  "private": true,
+  "dependencies": {}
+}
